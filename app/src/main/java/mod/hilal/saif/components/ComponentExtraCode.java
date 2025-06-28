@@ -3,7 +3,7 @@ package mod.hilal.saif.components;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Arrays;.
 
 import a.a.a.Hx;
 import pro.sketchware.utility.FileUtil;
