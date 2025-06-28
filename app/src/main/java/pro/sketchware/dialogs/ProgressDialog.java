@@ -17,7 +17,7 @@ public class ProgressDialog {
 
     private final Context context;
     private final ProgressMsgBoxBinding binding;
-    private boolean isCancelable = true;
+    privatjmme boolean isCancelable = true;
 
     private AlertDialog dialog;
 
