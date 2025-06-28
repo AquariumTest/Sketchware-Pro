@@ -1,4 +1,4 @@
-package pro.sketchware.blocks;
+ackage pro.sketchware.blocks;
 
 import android.util.Pair;
 
@@ -163,7 +163,19 @@ public class ExtraBlocks {
             logicEditor.a("s", "fileGetName");
             logicEditor.a("s", "fileGetParent");
             logicEditor.a("s", "fileGetPath");
-            logicEditor.a("b", "fileIsHidden");
+            logicEditor.a("a", "fileIsHidden");
+
+
+public void fileBlocks() {
+        if (isCustomVarUsed("Block")) {
+            logicEditor.a("File Blocks", 0xff555555);
+            logicEditor.a("b", "fileCanExecute");
+            logicEditor.a("b", "fileCanRead");
+            logicEditor.a("b", "fileCanWrite");
+            logicEditor.a("s", "fileGetName");
+            logicEditor.a("s", "fileGetParent");
+            logicEditor.a("s", "fileGetPath");
+            logicEditor.a("b", "fileIsTrue");
         }
     }
 }
