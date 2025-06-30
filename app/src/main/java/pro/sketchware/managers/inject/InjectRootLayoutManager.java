@@ -7,7 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import a.a.a.wq;
@@ -16,10 +18,19 @@ import pro.sketchware.tools.ViewBeanParser;
 import pro.sketchware.utility.FileUtil;
 
 public class InjectRootLayoutManager {
+    private static InjectRootLayoutManager instance;
     private final String path;
+    private final Gson gson = new Gson();
 
-    public InjectRootLayoutManager(String sc_id) {
+    private InjectRootLayoutManager(String sc_id) {
         path = wq.b(sc_id) + "/view_root";
+    }
+
+    public static synchronized InjectRootLayoutManager getInstance(String sc_id) {
+        if (instance == null) {
+            instance = new InjectRootLayoutManager(sc_id);
+        }
+        return instance;
     }
 
     public static Root getDefaultRootLayout() {
@@ -27,6 +38,7 @@ public class InjectRootLayoutManager {
         attrs.put("android:layout_width", "match_parent");
         attrs.put("android:layout_height", "match_parent");
         attrs.put("android:orientation", "vertical");
+        attrs.put("android:background", "#FFFFFF");
         return new Root("LinearLayout", attrs);
     }
 
@@ -43,8 +55,16 @@ public class InjectRootLayoutManager {
         save(data);
     }
 
+    public void removeLayout(String name) {
+        Map<String, Root> data = get();
+        if (data != null) {
+            data.remove(name);
+            save(data);
+        }
+    }
+
     private void save(Map<String, Root> data) {
-        FileUtil.writeFile(path, new Gson().toJson(data));
+        FileUtil.writeFile(path, gson.toJson(data));
     }
 
     public Root getLayoutByFileName(String name) {
@@ -52,12 +72,15 @@ public class InjectRootLayoutManager {
     }
 
     public Map<String, Root> get() {
-        if (FileUtil.isExistFile(path)) {
-            return new Gson()
-                    .fromJson(
-                            FileUtil.readFile(path),
-                            new TypeToken<LinkedHashMap<String, Root>>() {
-                            }.getType());
+        try {
+            if (FileUtil.isExistFile(path)) {
+                return gson.fromJson(
+                        FileUtil.readFile(path),
+                        new TypeToken<LinkedHashMap<String, Root>>() {
+                        }.getType());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return new LinkedHashMap<>();
     }
@@ -67,6 +90,13 @@ public class InjectRootLayoutManager {
         ViewBean viewBean = new ViewBean("root", ViewBeanParser.getViewTypeByClassName(root.className));
         viewBean.convert = root.className;
         new ViewBeanFactory(viewBean).applyAttributes(root.getAttributes());
+        
+        if (root.children != null) {
+            for (ViewBean child : root.children) {
+                viewBean.view.addSubView(child);
+            }
+        }
+        
         return viewBean;
     }
 
@@ -76,6 +106,9 @@ public class InjectRootLayoutManager {
 
         @SerializedName("attributes")
         private Map<String, String> attrs;
+
+        @SerializedName("children")
+        private List<ViewBean> children;
 
         public Root() {
         }
@@ -91,6 +124,13 @@ public class InjectRootLayoutManager {
 
         public Map<String, String> getAttributes() {
             return attrs;
+        }
+
+        public void addChild(ViewBean child) {
+            if (children == null) {
+                children = new ArrayList<>();
+            }
+            children.add(child);
         }
     }
 }
